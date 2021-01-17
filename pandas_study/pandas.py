@@ -191,3 +191,103 @@ print('### after reset_index ###')
 print(new_value_counts)
 print('new_valeu_counts 객체 변수 타입:', type(new_value_counts))
 print()
+
+
+# 데이터 셀렉션 및 필터링
+
+# 컬럼 명 지정
+print('단일 컬럼 데이터 추출:\n', titanic_df['Pclass'].head(3))
+print()
+print('여러 컬럼의 데이터 추출:\n', titanic_df[['Survived', 'Pclass']].head(3))
+print()
+# print('[ ] 안에 숫자 index는 KeyError 오류 발생:\n', titanic_df[0])
+# print()
+
+# 인덱스 형태로 변환 가능한 표현식
+titanic_df[:2]
+print()
+
+# 불린 인덱싱
+titanic_df[titanic_df['Pclass'] == 3].head(3)
+print()
+
+
+data = {'Name': ['Chulmin', 'Eunkyung', 'Jinwoong', 'Soobeom'],
+        'Yead': [2011, 2016, 2015, 2015],
+        'Gender': ['Male', 'Female', 'Male', 'Male']}
+data_df = pd.DataFrame(data, index = ['one', 'two', 'three', 'four'])
+data_df
+
+
+# iloc[]연산자
+data_df.iloc[0, 0]
+print()
+
+# 위치인덱싱이 아닌 명칭입력
+# data_df.iloc[0, 'Name']
+# print()
+
+# loc[] 연산자
+data_df.loc['one', 'Name']
+print()
+
+# iloc와 loc의 슬라이싱 차이점
+print('위치 기반 iloc slicing\n', data_df.iloc[0:1, 0])
+print('명칭 기반 loc slicing\n', data_df.loc['one':'two', 'Name'])
+print()
+
+# 불린 인덱싱
+# 60세 이상 추출
+titanic_boolean = titanic_df.loc[titanic_df['Age'] >= 60, :]
+print(type(titanic_boolean))
+titanic_boolean
+print()
+
+# 60세 이상 나이와 이름 컬럼 위에서 3개만 추출
+titanic_df.loc[titanic_df['Age'] >= 60, ['Age', 'Name']].head(3)
+print()
+
+# 60세 이상이고 선실 등급은 1등급이며 성별이 여성인 승객을 추출
+titanic_df[(titanic_df['Age'] >= 60)  & (titanic_df['Pclass'] == 1) & (titanic_df['Sex'] == 'female')]
+print()
+
+
+# 정렬, Aggregation함수, Group By적용
+
+# DataFrame, Series의 정렬 - sort_values()
+titanic_df.sort_values(by = 'Name')
+print()
+
+# Pclass, Name컬럼 내림차순으로 정렬
+titanic_df.sort_values(by = ['Pclass', 'Name'])
+print()
+
+# Aggregation적용
+titanic_df.count()
+print()
+
+# Age, Fare컬럼 평균값 출력
+titanic_df[['Age', 'Fare']].mean()
+print()
+
+# group by적용
+titanic_group = titanic_df.groupby(by = 'Pclass')
+print(type(titanic_group))
+print()
+
+# Pclass컬럼을  groupby하여 aggregation으로 count()
+titanic_df.groupby(by = 'Pclass').count()
+print()
+
+#  Pclass를 groupby하고 PassengerId, Survived컬럼에만 count를 수행
+titanic_df.groupby(by = 'Pclass')[['PassengerId', 'Survived']].count()
+print()
+
+# Pclass를 groupby하고 Age컬럼에 max와 min 수행
+titanic_df.groupby(by = 'Pclass')['Age'].agg([max, min])
+# 리스트형식으로 전달한다.
+print()
+
+# Pclass를 groupby하고 Age컬럼은 max, SibSp컬럼은  sum, Fare컬럼은 mean 수행
+agg_format = {'Age' : 'max', 'SibSp' : 'sum', 'Fare' : 'mean'}
+titanic_df.groupby(by = 'Pclass').agg(agg_format)
