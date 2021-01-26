@@ -291,3 +291,91 @@ print()
 # Pclass를 groupby하고 Age컬럼은 max, SibSp컬럼은  sum, Fare컬럼은 mean 수행
 agg_format = {'Age' : 'max', 'SibSp' : 'sum', 'Fare' : 'mean'}
 titanic_df.groupby(by = 'Pclass').agg(agg_format)
+print()
+
+
+
+# 결손 데이터 처리하기
+titanic_df = pd.read_csv('titanic_train.csv')
+
+# isna()
+titanic_df.isna().head()
+print()
+
+# 각 컬럼 결손데이터의 개수
+titanic_df.isna().sum()
+print()
+
+# fill()
+# Cabin컬럼 NaN값 C000으로 대체
+titanic_df['Cabin'].fillna('C000')
+print()
+
+#  Age컬럼의 NaN값을 평균 나이로 Embarked컬럼의 NaN값을 S로 대체해 모든 결손 데이터를 처리
+titanic_df['Age'] = titanic_df['Age'].fillna(titanic_df['Age'].mean())
+titanic_df['Embarked'] = titanic_df['Embarked'].fillna('S')
+titanic_df.isna().sum()
+print()
+
+
+# apply lambda식으로 데이터 가공
+
+# 입력값의 제곱값을 수해서 반환하는 함수 
+def get_square(a):
+    return a**2
+
+print('3의 제곱은:', get_square(3))
+print()
+
+# lambda
+lambda_square = lambda x : x ** 2
+print('3의 제곱은:', lambda_square(3))
+print()
+
+# 여러개의 값을 입력인자로 사용할때(map()사용)
+a = [1, 2, 3]
+squares = map(lambda x : x ** 2, a)
+list(squares)
+print()
+
+# Name컬럼의 문자열개수를 Name_len에 입력
+titanic_df['Name_len'] = titanic_df['Name'].apply(lambda x : len(x))
+titanic_df[['Name', 'Name_len']].head()
+print()
+
+# 나이가 15세 이하면 Child 그렇지 않으면 Adult로 구분하는 새로운 컬럼 Child_Adult 생성
+titanic_df['Child_Adult'] = titanic_df['Age'].apply(lambda x : 'Child' if x <= 15 else 'Adult')
+titanic_df[['Age', 'Child_Adult']].head(8)
+print()
+
+# 15세 이하면 Child 15~60사이는 Adult 61세이상은 Elderly로 분류하는 Age_Cat컬럼 생성
+titanic_df['Age_Cat'] = titanic_df['Age'].apply(lambda x : 'Child' if x <= 15 else('Adult' if x <= 60 else 'Elderly'))
+titanic_df['Age_Cat'].value_counts()
+
+# 5살 이하 Baby 12살 이하 Child 18살 이하 Teenager 25살 이하 student 
+# 35살 이하 Young Adult 60세 이하는 Adult 그 이상은 Elderly로 분류
+
+def get_category(age):
+    re = ''
+    if age <= 5:
+        re = 'Baby'
+    elif age <= 12:
+        re = 'Child'
+    elif age <= 18:
+        re = 'Teenager'
+    elif age <= 25:
+        re = 'student'
+    elif age <= 35:
+        re = 'Young Adult'
+    elif age <= 60:
+        re = 'Adult'
+    else:
+        re = 'Elderly'
+        
+    return re
+
+titanic_df['Age_Cat'] = titanic_df['Age'].apply(lambda x : get_category(x))
+titanic_df[['Age', 'Age_Cat']].head()
+
+titanic_df['Age_Cat'].value_counts()
+        
